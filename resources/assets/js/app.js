@@ -27,7 +27,7 @@ window.axios = require('axios');
 
 Vue.component('im-modal',{
 	template: `
-		<div class="modal">
+		<div id="uploadCsv" class="modal">
 		<div class="modal-background"></div>
 		<div class="modal-content">
 			<slot></slot>
@@ -96,6 +96,10 @@ new Vue({
 				this.invoiceItems.push({quantity:1, item: itemToAdd, priceEx: itemToAdd.PriceEx * 1.00, priceIn: itemToAdd.PriceIn * 1.00, totalEx:itemToAdd.PriceEx * 1.00, totalIn:itemToAdd.PriceIn * 1.00});
 			}
 			// 			Increase quantity
+		},
+
+		openModal(){
+			document.getElementById('uploadCsv').classList.add('is-active');
 		},
 
 		removeInvoiceItem: function(index){

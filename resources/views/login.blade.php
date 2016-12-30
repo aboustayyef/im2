@@ -43,8 +43,13 @@
     </style>    
     <div id="middle">
 
+
+        @if($request->session()->has('message'))
+            {{$request->session()->get('message')}}
+        @endif
+
         <h1>Please Enter Password to access this page</h1>
-        <form method="POST" action="/">
+        <form method="POST" action="/checkPassword">
             <div id="interface">            
                 {{csrf_field()}}
                 <label for="password">Enter Password:</label>

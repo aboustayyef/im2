@@ -21,6 +21,13 @@
 	</im-modal>
 	<aside id="interface" class="hideFromPrint">
 
+		@if(Session::has('message'))
+			<div class="notification">
+			  {{Session::get('message')}}
+			</div>
+		@endif
+		<button class="button is-primary" @click="openModal">Upload New Spreadsheet</button>
+		<hr>
 
 		<label class="label">Invoice Prepared By</label>
 		<p class="control">

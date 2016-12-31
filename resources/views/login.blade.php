@@ -44,8 +44,8 @@
     <div id="middle">
 
 
-        @if($request->session()->has('message'))
-            {{$request->session()->get('message')}}
+        @if(\Session::has('message'))
+            {{\Session::get('message')}}
         @endif
 
         <h1>Please Enter Password to access this page</h1>

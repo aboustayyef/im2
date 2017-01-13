@@ -58,6 +58,7 @@ class uploadController extends Controller
             $record->PriceIn = $item[6];
             $record->Value = $item[7];
             $record->Stock = $item[8];
+            $record->AddedToInvoice = 0;
 	        $record->save();
 		});
 

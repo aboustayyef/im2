@@ -1,30 +1,10 @@
-// window.$ = window.jQuery = require('jquery');
-
-// global.bg = {};
-
-// import GoodsRepository from './modules/goods.js' ;
-// let goodsRepository = new GoodsRepository;
-
-// var searching = require('./modules/searching.js'); 
-// searching.init(goodsRepository);
-
-// var invoicing = require('./modules/invoicing.js'); 
-// invoicing.init(goodsRepository);
-
-
-
-// goods data (now using ajax)
-// import goods from './data.js';
-
 // Vue
-
 window.Vue = require('vue');
 
+// Axios for REST requests
 window.axios = require('axios');
 
-// App
-
-
+// Modal to upload content
 Vue.component('im-modal',{
 	template: `
 		<div id="uploadCsv" class="modal">
@@ -47,82 +27,72 @@ new Vue({
 
 	el: "#app",
 	mounted(){
-		axios.get('/goods').then((response) => this.goods = response.data);
+		axios.get('/goods').then((response) => {
+			this.goods = response.data;
+			this.appReady = 1;
+			document.getElementById('loading').classList.add('hidden');
+			document.getElementById('app').classList.remove('hidden');
+		});
 	},
 	data: {
+		appReady:0,
 		goods: {},
 		invoicePreparer: "",
 		customerName: "",
 		customerAddress: "",
 		searchTerm: "",
-		searchResults: [],
-		invoiceItems: []
 	},
 
+	computed: {
+	    // a computed getter
+	    totalEx: function () {
+	      // `this` points to the vm instance
+	      if (this.appReady == 1) {
+	      	let total = this.goods.reduce(function(total, item){
+				return total + (item.PriceEx * item.AddedToInvoice);
+			},0.00);
+			return total;
+	      }
+	      return 0;
+	      
+	    },
+	    totalIn: function () {
+	      // `this` points to the vm instance
+	      if (this.appReady == 1) {
+	      	let total = this.goods.reduce(function(total, item){
+				return total + (item.PriceIn * item.AddedToInvoice);
+			},0.00);
+			return total;
+	      }
+	      return 0;
+	    },
+	    vat: function(){
+	    	return this.totalIn - this.totalEx;
+	    }
+
+	  },
+
 	methods: {
-		updateSearchResults: function(event) {
-			this.searchResults = this.goods.filter((item) => {
+		containsSearchTerm: function(good){
 				let reg = new RegExp(this.searchTerm, "gi");
-				return (item.Name.match(reg) != null) || (item.Description.match(reg) != null) || (item.Code.match(reg) != null) || (item.Supplier.match(reg) != null);
-			});
+				return (good.Name.match(reg) != null) || (good.Description.match(reg) != null) || (good.Code.match(reg) != null) || (good.Supplier.match(reg) != null);
+		},
+		increment: function(good){
+			if (good.AddedToInvoice < good.Stock) {
+				good.AddedToInvoice++;
+			}
+		},
+		AddedToInvoice: function(good){
+			return good.AddedToInvoice > 0;
 		},
 		formatPrice : function(cedis) {
 			var pesewas = cedis * 100;
 			return 'GH¢ ' + ( (pesewas / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") );
 		},
 
-		updateInvoiceItems: function(event) {
-
-			// receive code of item to add from add button event
-			let code = event.target.dataset.code; 
-
-			// find where that code is in the list of goods
-			let index = this.goods.findIndex((item) => item.Code == code);
-			let itemToAdd = this.goods[index];
-
-			// if the item exists among invoiceItems
-			let exists = this.invoiceItems.findIndex((item) => item.item.Code == code);
-			if (exists > -1) {
-				let existingItem = this.invoiceItems[exists];
-				//	if quatity < amount in stock increase quantity and update pricing. Otherwise do nothing
-				if (existingItem.quantity < itemToAdd.Stock) {
-					existingItem.quantity++;
-					existingItem.totalEx = existingItem.quantity * existingItem.priceEx;
-					existingItem.totalIn = existingItem.quantity * existingItem.priceIn;
-				} else {
-					console.log('no more in stock');
-				}
-			}else{ // Item does not exist. Create new item on invoice
-				this.invoiceItems.push({quantity:1, item: itemToAdd, priceEx: itemToAdd.PriceEx * 1.00, priceIn: itemToAdd.PriceIn * 1.00, totalEx:itemToAdd.PriceEx * 1.00, totalIn:itemToAdd.PriceIn * 1.00});
-			}
-			// 			Increase quantity
-		},
-
 		openModal(){
 			document.getElementById('uploadCsv').classList.add('is-active');
 		},
-
-		removeInvoiceItem: function(index){
-			this.invoiceItems.splice(index, 1);
-		},
-
-		invoiceGrandTotalEx: function(){
-			let total = this.invoiceItems.reduce(function(total, item){
-				return total + item.totalEx;
-			},0.00);
-			return total;
-		},
-		invoiceGrandTotalIn: function(){
-			let total = this.invoiceItems.reduce(function(total, item){
-				return total + item.totalIn;
-			},0.00);
-			return total;
-		},
-		invoiceGrandTotalVat: function(){
-			return this.invoiceGrandTotalIn() - this.invoiceGrandTotalEx();
-		}
 	}
 
 });
-
-

@@ -7,7 +7,11 @@
 	<link rel="stylesheet" type="text/css" href="/css/app.css">
 </head>
 <body>
-<div id="app" class="wrapper">
+	<div id="loading">
+		<a class="button is-primary is-loading">Loading</a>
+		<a class="button is-white">Loading</a>
+	</div>
+<div id="app" class="wrapper hidden">
 	<im-modal>
 		<div class="section">
 			<form action="/uploadCsv" method="post" enctype="multipart/form-data">
@@ -46,17 +50,17 @@
 
 		<label class="label">Search For Items</label>
 		<p class="control">
-		  <input @keyup="updateSearchResults" v-model="searchTerm" class="input" type="text" id="search" placeholder="Description or Code" autocomplete="off">
+		  <input v-model="searchTerm" class="input" type="text" id="search" placeholder="Description or Code" autocomplete="off">
 		</p>
 
 		<ul id="search_results">
-			<li v-for="result in searchResults" class="search_item"> 
-				<button @click="updateInvoiceItems" class="addSearchResultToInvoice button" :data-code="result.Code">Add</button> 
-				<div v-text="result.Name + ' - ' + result.Description" class="description"></div>
+			<li v-for="good in goods" class="search_item" v-if="containsSearchTerm(good)"> 
+				<button :disabled="good.AddedToInvoice >= good.Stock" @click="increment(good)" class="addSearchResultToInvoice button">Add</button>
+				<div class="description">Available: @{{good.Stock - good.AddedToInvoice}} &mdash; @{{good.Name + ' - ' + good.Description}}</div>
 			</li>
 		</ul>
 	</aside>
-	
+
 	<section id="output">
 		<div class = "topPart">
 			<header id="invoiceHeader">
@@ -78,14 +82,14 @@
 						</thead>
 			
 			<tbody>
-				<tr v-for="(item, index) in invoiceItems">
-					<td v-text="item.item.Code"></td>
-					<td v-text="item.item.Brand"></td>
-					<td v-text="item.item.Name"></td>
-					<td v-text="formatPrice(item.priceEx)"></td>
-					<td v-text="item.quantity"></td>
-					<td v-text="formatPrice(item.totalEx)"></td>
-					<td class="hideFromPrint"><button @click="removeInvoiceItem(index)" class="button is-danger">Remove</button></td>
+				<tr v-for="good in goods" v-if="good.AddedToInvoice > 0">
+					<td v-text="good.Code"></td>
+					<td v-text="good.Brand"></td>
+					<td v-text="good.Name"></td>
+					<td v-text="formatPrice(good.PriceEx * 1.00)"></td>
+					<td v-text="good.AddedToInvoice"></td>
+					<td v-text="formatPrice(good.PriceEx * 1.00 * good.AddedToInvoice)"></td>
+					<td><button class="button is-danger" @click="good.AddedToInvoice = 0">Remove</button></td>
 				</tr>
 			</tbody>
 			</table>
@@ -102,15 +106,15 @@
 					<table>
 						<tr>
 							<td class="totals_heading">Subtotal: </td>
-							<td v-text="formatPrice(invoiceGrandTotalEx())"></td>
+							<td v-text="formatPrice(totalEx)"></td>
 						</tr>
 						<tr>
 							<td class="totals_heading">VAT (17.5%): </td>
-							<td v-text="formatPrice(invoiceGrandTotalVat())"></td>
+							<td v-text="formatPrice(vat)"></td>
 						</tr>
 						<tr>
 							<td class="totals_heading">Total: </td>
-							<td v-text="formatPrice(invoiceGrandTotalIn())"></td>
+							<td v-text="formatPrice(totalIn)"></td>
 						</tr>
 					</table>
 				</div>
@@ -126,6 +130,8 @@
 			</div>
 		</footer>
 	</section>
+	
+	
 </div>
 
 </body>

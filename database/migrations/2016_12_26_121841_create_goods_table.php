@@ -25,6 +25,7 @@ class CreateGoodsTable extends Migration
             $table->decimal('PriceIn');
             $table->decimal('Value');
             $table->smallInteger('Stock');
+            $table->smallInteger('AddedToInvoice');
         });
     }
 

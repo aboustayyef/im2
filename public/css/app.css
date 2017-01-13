@@ -6262,6 +6262,10 @@ body {
   background: white;
 }
 
+#loading {
+  margin: 1em;
+}
+
 .wrapper {
   display: -webkit-box;
   display: flex;
@@ -6411,6 +6415,10 @@ div#vat {
 
 tr {
   font-size: 0.85em;
+}
+
+.hidden {
+  display: none;
 }
 
 /*# sourceMappingURL=app.css.map */

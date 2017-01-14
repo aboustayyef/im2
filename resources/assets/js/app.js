@@ -46,7 +46,6 @@ new Vue({
 	computed: {
 	    // a computed getter
 	    totalEx: function () {
-	      // `this` points to the vm instance
 	      if (this.appReady == 1) {
 	      	let total = this.goods.reduce(function(total, item){
 				return total + (item.PriceEx * item.AddedToInvoice);
@@ -57,7 +56,6 @@ new Vue({
 	      
 	    },
 	    totalIn: function () {
-	      // `this` points to the vm instance
 	      if (this.appReady == 1) {
 	      	let total = this.goods.reduce(function(total, item){
 				return total + (item.PriceIn * item.AddedToInvoice);

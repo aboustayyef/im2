@@ -46,7 +46,7 @@
 						<td v-text="formatPrice(totalEx)"></td>
 					</tr>
 					<tr>
-						<td class="totals_heading">VAT (17.5%): </td>
+						<td class="totals_heading">VAT (3.00%): </td>
 						<td v-text="formatPrice(vat)"></td>
 					</tr>
 					<tr>
